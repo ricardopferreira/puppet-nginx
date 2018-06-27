@@ -12,6 +12,8 @@ to prevent from applying incorrect config.
 * [nginx::upstream](#nginxupstream)
 * [nginx::vhost](#nginxvhost)
 * [nginx::snippet](#nginxsnippet)
+* [nginx::proxy](#nginxproxy)
+* [nginx::forwardproxy](#nginxforwardproxy)
 
 ### nginx
 This class installs nginx and sets up default nginx.conf file.
@@ -244,3 +246,48 @@ want your snippet file name to be different, then use this parameter.
 ## Authors
 * Vaidas Jablonskis <jablonskis@gmail.com>
 
+### nginx::proxy
+This class create a proxy to redirect requests for https://domain.com to 10.10.10.10 and redirect requests for https://domain.com/resoure2 to 20.20.20.20.
+
+#### Parameters
+
+
+#### Examples
+---
+    classes:
+      - nginx::proxy
+    
+    nginx::proxy:
+      #'my_app_backend':
+      #  ip_hash: true
+      #  least_conn: false
+      #  server:
+      #    - '192.168.0.1:8080 weight=3'
+      #    - '192.168.0.2:8080 weight=1'
+      #    - '192.168.0.3:8080 down'
+    
+      #  check: 'interval=3000 rise=2 fall=5 timeout=1000'
+      #  check_http_send: '"GET / HTTP/1.0\r\n\r\n"'
+
+### nginx::forwardproxy
+This class create a forward proxy to log HTTP requests going from the internal network to the Internet including: request protocol, remote IP and time take to serve the request.
+
+#### Parameters
+
+
+#### Examples
+---
+    classes:
+      - nginx::forwardproxy
+    
+    nginx::forwardproxy:
+      #'my_app_backend':
+      #  ip_hash: true
+      #  least_conn: false
+      #  server:
+      #    - '192.168.0.1:8080 weight=3'
+      #    - '192.168.0.2:8080 weight=1'
+      #    - '192.168.0.3:8080 down'
+    
+      #  check: 'interval=3000 rise=2 fall=5 timeout=1000'
+      #  check_http_send: '"GET / HTTP/1.0\r\n\r\n"'
