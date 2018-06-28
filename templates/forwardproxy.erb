@@ -1,0 +1,33 @@
+#
+# This file is managed by puppet class 'nginx::forwardproxy'
+# 
+# nginx vhost config for <%= @title %>
+#
+server {
+  listen 8080;
+<%
+if @server_name.kind_of?(Array)
+-%>
+  server_name <%= @server_name.join(' ') %>;
+<%
+else
+-%>
+  server_name <%= @server_name %>;
+<%
+end
+-%>
+
+  log_format requests '$protocol $server_protocol $server_addr $remote_addr - $remote_user [$time_local] '
+                      '$request_time $status $body_bytes_sent '
+					
+  access_log <%= @access_log %> requests;
+  error_log <%= @error_log %>;
+
+  location / {
+  
+        resolver <%= @dns_server %>;
+
+        proxy_pass http://$http_host$uri$is_args$args;
+    }
+
+  }
