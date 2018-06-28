@@ -12,7 +12,6 @@ to prevent from applying incorrect config.
 * [nginx::upstream](#nginxupstream)
 * [nginx::vhost](#nginxvhost)
 * [nginx::snippet](#nginxsnippet)
-* [nginx::proxy](#nginxproxy)
 * [nginx::forwardproxy](#nginxforwardproxy)
 
 ### nginx
@@ -74,7 +73,8 @@ docs. Default: `undef`.
     
     nginx::gzip: off
     nginx::include:
-      - '/tmp/my_custom_config.conf'
+      - '/etc/nginx/vhost.d/vhost_conf.conf'
+      - '/etc/nginx/vhost.d/forwardproxy_conf.conf'
     
     nginx::cache_dirs:
       - '/srv/nginx_cache'
@@ -191,29 +191,26 @@ defines an actual location, the rest of parameters of the hash can be anything t
 supports within a location config block. See examples for more details. Default: `undef`.
 
 #### Examples
+#### ANSWER TO FIRST FUNCIONALITY OF THE TEST
     ---
     classes:
       - nginx::vhost
     
     # this example shows a vhost configuration for ssl and reverse proxying
     nginx::vhost:
-      'www.example.com':
+      'domain.com':
         listen: ['80']
-        server_name: ['*.example.com']
-      'www.example.com_ssl':
+        server_name: ['*.domain.com']
+      'domain.com_ssl':
         listen: ['443 ssl']
-        server_name: ['*.example.com']
-        ssl_certificate: '/etc/pki/tls/certs/www.example.com-crt.pem'
-        ssl_certificate_key: '/etc/pki/tls/private/www.example.com-key.pem'
+        server_name: ['*.domain.com']
+        ssl_certificate: '/etc/pki/tls/certs/domain.com-crt.pem'
+        ssl_certificate_key: '/etc/pki/tls/private/domain.com-key.pem'
         locations:
           - name: '/'
-            proxy_pass: 'http://127.0.0.1/'
-            proxy_set_header:
-              - 'X-Real-IP $remote_addr'
-              - 'X-Forwarded-For $proxy_add_x_forwarded_for'
-              - 'Host $http_host'
-          - name: '/foo'
-            return: 404
+            proxy_pass: 'http://10.10.10.10/'
+          - name: '/resource2'
+            proxy_pass: 'http://20.20.20.20/'
 
 ### nginx::snippet
 
@@ -246,48 +243,27 @@ want your snippet file name to be different, then use this parameter.
 ## Authors
 * Vaidas Jablonskis <jablonskis@gmail.com>
 
-### nginx::proxy
-This class create a proxy to redirect requests for https://domain.com to 10.10.10.10 and redirect requests for https://domain.com/resoure2 to 20.20.20.20.
-
-#### Parameters
-
-
-#### Examples
----
-    classes:
-      - nginx::proxy
-    
-    nginx::proxy:
-      #'my_app_backend':
-      #  ip_hash: true
-      #  least_conn: false
-      #  server:
-      #    - '192.168.0.1:8080 weight=3'
-      #    - '192.168.0.2:8080 weight=1'
-      #    - '192.168.0.3:8080 down'
-    
-      #  check: 'interval=3000 rise=2 fall=5 timeout=1000'
-      #  check_http_send: '"GET / HTTP/1.0\r\n\r\n"'
 
 ### nginx::forwardproxy
-This class create a forward proxy to log HTTP requests going from the internal network to the Internet including: request protocol, remote IP and time take to serve the request.
+This class creates a forward proxy to log HTTP requests going from the internal network to the Internet including: request protocol, remote IP and time take to serve the request. It uses port 8080 on fqdn (by default).
 
 #### Parameters
+* `server_name` - A list of server names. Default: `$::fqdn`.
 
+* `access_log` - Access log. Default: `/var/log/nginx/<hash name>_access.log`.
+
+* `error_log` - Error log. Default: `/var/log/nginx/<hash name>_error.log warn`.
+
+* `dns_server` - DNS server IP to use. Default: `8.8.8.8`.
 
 #### Examples
----
+#### ANSWER TO SECOND FUNCIONALITY OF THE TEST
+    ---
     classes:
       - nginx::forwardproxy
     
+    # this example shows a forwardproxy configuration for HTTP requests logging using an internal "fictional" DNS (10.20.30.40)
     nginx::forwardproxy:
-      #'my_app_backend':
-      #  ip_hash: true
-      #  least_conn: false
-      #  server:
-      #    - '192.168.0.1:8080 weight=3'
-      #    - '192.168.0.2:8080 weight=1'
-      #    - '192.168.0.3:8080 down'
-    
-      #  check: 'interval=3000 rise=2 fall=5 timeout=1000'
-      #  check_http_send: '"GET / HTTP/1.0\r\n\r\n"'
+      'frdproxy'
+        server_name: ['*.internalproxy.com']
+        dns_server: '10.20.30.40'
