@@ -1,4 +1,4 @@
-# == Defined type: nginx::vhost_conf
+# == Defined type: nginx::forwardproxy_conf
 #
 # This defined type takes a hash of hashes and turns it into a config file.
 #
@@ -21,7 +21,7 @@ define nginx::forwardproxy_conf(
     $dns_server                     = "8.8.8.8",
   ) {
 
-  $conf_template = 'vhost_conf.erb'
+  $conf_template = 'forwardproxy_conf.erb'
 
   file { "${nginx::vhost_dir}/${title}.conf":
     ensure  => 'file',
